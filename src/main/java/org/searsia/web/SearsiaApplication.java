@@ -24,8 +24,9 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.json.JSONObject;
-import org.searsia.index.SearchResultIndex;
+import org.searsia.cache.RunningAvgTTLCache;
 import org.searsia.index.ResourceIndex;
+import org.searsia.index.SearchResultIndex;
 
 /**
  * Searsia Web API application.
@@ -69,7 +70,9 @@ public class SearsiaApplication extends ResourceConfig {
 	public SearsiaApplication(SearchResultIndex index, ResourceIndex engines, Boolean openWide) throws IOException {
 		super();
     	Logger.getLogger("org.glassfish.grizzly").setLevel(Level.WARNING);
-		register(new Search(index, engines));
+    	// TODO initialize Cache in the main method, and add it as a parameter,
+    	// to allow the cache to be configurable through startup Arguments
+		register(new Search(index, engines, new RunningAvgTTLCache()));
 		register(new Update(engines, openWide));
 		register(new OpenSearch(engines));
 	}

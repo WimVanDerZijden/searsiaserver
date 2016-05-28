@@ -124,6 +124,10 @@ public class Hit implements Comparable<Hit> {
 		return (String) map.get("title");
 	}
 	
+	public String getUrl() {
+		return (String) map.get("url");
+	}
+	
 	@Override
 	public String toString() {
 		return map.entrySet().toString();
@@ -162,6 +166,17 @@ public class Hit implements Comparable<Hit> {
     	} else {
     		return score1.compareTo(score2);
     	}
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+    	if (!(o instanceof Hit))
+    		return false;
+    	Hit other = (Hit) o;
+    	return other.getDescription().equals(getDescription())
+    			&& other.getTitle().equals(getTitle())
+    			&& other.getUrl().equals(getUrl());
     }
     
 }

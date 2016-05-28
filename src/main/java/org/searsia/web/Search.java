@@ -30,12 +30,13 @@ import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-
 import org.searsia.SearchResult;
-import org.searsia.index.SearchResultIndex;
-import org.searsia.index.ResourceIndex;
+import org.searsia.cache.IResourceCache;
+import org.searsia.cache.RunningAvgTTLCache;
 import org.searsia.engine.Resource;
 import org.searsia.engine.SearchException;
+import org.searsia.index.ResourceIndex;
+import org.searsia.index.SearchResultIndex;
 
 /**
  * Generates json response for HTTP GET search.
@@ -49,10 +50,12 @@ public class Search {
 	
 	private ResourceIndex engines;
     private SearchResultIndex index;
+    private IResourceCache resourceCache;
 
-	public Search(SearchResultIndex index, ResourceIndex engines) throws IOException {
+	public Search(SearchResultIndex index, ResourceIndex engines, IResourceCache resourceCache) throws IOException {
 		this.engines  = engines;
     	this.index = index;
+    	this.resourceCache = resourceCache;
 	}
 	
 	private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
@@ -112,7 +115,9 @@ public class Search {
  			}
 			if (query != null && query.trim().length() > 0) {
 				try {
-					result = engine.search(query);
+					// TODO implement caching mechanism here
+					//result = engine.search(query);
+					result = resourceCache.getSearchResult(engine, query);
 					if (!resourceid.equals(engines.getMotherId())) {
 						result.removeResourceRank();     // only trust your mother
 					}
@@ -122,6 +127,7 @@ public class Search {
 					json.put("resource", engine.toJson());
 					return SearsiaApplication.responseOk(json);
 				} catch (Exception e) {
+					e.printStackTrace();
 					String message = "Resource @" + resourceid + " unavailable: " + e.getMessage();
 					logWarning(message);
 					return SearsiaApplication.responseError(503, message);

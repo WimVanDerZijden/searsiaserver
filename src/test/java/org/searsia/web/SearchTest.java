@@ -12,10 +12,10 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.searsia.index.SearchResultIndex;
 import org.searsia.index.ResourceIndex;
 import org.searsia.web.Search;
+import org.searsia.cache.RunningAvgTTLCache;
 import org.searsia.engine.Resource;
 
 public class SearchTest {
@@ -25,6 +25,7 @@ public class SearchTest {
     private static final String INDEX = "test2";
     private static SearchResultIndex index;
     private static ResourceIndex engines;
+    private static RunningAvgTTLCache cache;
     
     
     private static Resource utwente() {
@@ -49,6 +50,7 @@ public class SearchTest {
     	engines.putMother(utwente());
     	engines.put(wrong());   	
     	engines.putMyself(me());
+    	cache = new RunningAvgTTLCache();
     }
 
     @AfterClass
@@ -58,7 +60,7 @@ public class SearchTest {
    
     @Test // returns 'my' resource description
 	public void test() throws IOException {
-		Search search = new Search(index, engines);
+		Search search = new Search(index, engines, cache);
 		Response response = search.query("", "");
 		int status = response.getStatus();
 		String entity = (String) response.getEntity();
@@ -70,7 +72,7 @@ public class SearchTest {
     
     @Test // returns local search results for 'searsia'
 	public void testQuery() throws IOException {
-		Search search = new Search(index, engines);
+		Search search = new Search(index, engines, cache);
 		Response response = search.query("", "searsia search for noobs");
 		int status = response.getStatus();
 		String entity = (String) response.getEntity();
@@ -91,7 +93,7 @@ public class SearchTest {
     
     @Test // returns local resource 'wrong' 
 	public void testResource() throws IOException {
-		Search search = new Search(index, engines);
+		Search search = new Search(index, engines, cache);
 		Response response = search.query("wrong", "");
 		int status = response.getStatus();
 		String entity = (String) response.getEntity();
@@ -103,7 +105,7 @@ public class SearchTest {
     
     @Test // returns resource 'youtube' (from mother)
 	public void testResourceUnknown() throws IOException {
-		Search search = new Search(index, engines);
+		Search search = new Search(index, engines, cache);
 		Response response = search.query("youtube", "");
 		int status = response.getStatus();
 		String entity = (String) response.getEntity();
@@ -115,12 +117,10 @@ public class SearchTest {
     
     @Test // returns results for the engine 'wrong' (which does not exist)
 	public void testError() throws IOException {
-		Search search = new Search(index, engines);
+		Search search = new Search(index, engines, cache);
 		Response response = search.query("wrong", "testquery");
 		int status = response.getStatus();
 		Assert.assertEquals(503, status);
 	}
-
-
 	
 }

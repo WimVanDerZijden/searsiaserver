@@ -42,7 +42,7 @@ public class SearchResult {
 	private String xmlOut;
 	
 	public SearchResult() {
-		this(null);
+		this((Hit) null);
 	}
 	
 	public SearchResult(Hit hit) {
@@ -188,5 +188,20 @@ public class SearchResult {
 			r.append("hits", hit.toJson());
 		}
 		return r;
+	}
+	
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof SearchResult))
+			return false;
+		SearchResult other = (SearchResult) o;
+		List<Hit> hits = getHits();
+		List<Hit> hits2 = other.getHits();
+		if (hits.size() != hits2.size())
+			return false;
+		for (int i = 0; i < hits.size(); i++)
+			if (!hits.get(i).equals(hits2.get(i)))
+				return false;
+		return true;
 	}
 }
