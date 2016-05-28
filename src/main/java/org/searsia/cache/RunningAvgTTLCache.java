@@ -60,7 +60,7 @@ public class RunningAvgTTLCache implements IResourceCache {
 		{
 			// We use the cache, but fire a separate thread to optimize our statistics
 			// TODO add a randomizer to do this checking less often on resources that have more
-			// statistical data
+			// statistical data already
 			if (cachedResult.isRefreshCandidate()) {
 				new Thread() {
 					@Override
@@ -76,6 +76,10 @@ public class RunningAvgTTLCache implements IResourceCache {
 			}
 			return cachedResult.searchResult;
 		}
+		// Statistics are maintained per resource, therefore, this process must be done synchronized.
+		// We can't allow multiple threads to be updating the statistics for the same resource concurrently.
+		// Also, making this synchronized avoids sending multiple concurrent requests, possibly for the same
+		// query to the same resource.
 		synchronized (resource)
 		{
 			// Recheck the cache, because the first check was not synchronized.
@@ -89,10 +93,6 @@ public class RunningAvgTTLCache implements IResourceCache {
 
 	private SearchResult refreshCache(Resource resource, String query, CachedResult cachedResult, long age) throws SearchException
 	{
-		// Statistics are maintained per resource, therefore, this process must be done synchronized.
-		// We can't allow multiple thread to be updating the statistics for the same resource concurrently.
-		// Also, making this synchronized avoids sending multiple concurrent requests, possibly for the same
-		// query to the same resource.
 		synchronized (resource)
 		{
 
@@ -195,10 +195,10 @@ public class RunningAvgTTLCache implements IResourceCache {
 		public String toString()
 		{
 			// Export statistics in TSV format
-			String s = "";
+			String s = "\ncreated\tminTTL\tmaxTTL\tEstimatedTTL";
 			for (Map.Entry<CachedResult, Long> entry : results.entrySet())
 				s += "\n" + entry.getKey().created + "\t" + entry.getKey().minTTL + "\t" + entry.getKey().maxTTL + "\t" + entry.getValue();
-			return s.length() > 0 ? s.substring(1) : "";
+			return s.substring(1);
 		}
 	}
 
