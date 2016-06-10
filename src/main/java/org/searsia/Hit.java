@@ -174,9 +174,23 @@ public class Hit implements Comparable<Hit> {
     	if (!(o instanceof Hit))
     		return false;
     	Hit other = (Hit) o;
-    	return other.getDescription().equals(getDescription())
-    			&& other.getTitle().equals(getTitle())
-    			&& other.getUrl().equals(getUrl());
+    	return compare(other.getDescription(),getDescription())
+    			&& compare(other.getTitle(),getTitle())
+    			&& compare(other.getUrl(),getUrl());
+    }
+    
+    /**
+     * Compare function that takes possible null values into account.
+     * 
+     * Courtesy of Eric: http://stackoverflow.com/a/11271611/2947592
+     * 
+     * @param o1
+     * @param o2
+     * @return
+     */
+    public static boolean compare(Object o1, Object o2)
+    {
+    	return o1 == null ? o2 == null : o1.equals(o2);
     }
     
 }

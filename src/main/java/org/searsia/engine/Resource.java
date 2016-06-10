@@ -56,7 +56,7 @@ public class Resource implements Comparable<Resource> {
     private final static Logger LOGGER = Logger.getLogger(Resource.class.getName());
 
     // For rate limiting: Default = 1000 queries per day
-    private final static int defaultRATE = 1000;    // unit: queries
+    private final static int defaultRATE = Integer.MAX_VALUE;    // unit: queries
     private final static int defaultPER = 86400000; // unit: miliseconds (86400000 miliseconds is one day)
     
 	// TODO: private static final Pattern queryPattern = Pattern.compile("\\{q\\??\\}");

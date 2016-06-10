@@ -14,4 +14,6 @@ import org.searsia.engine.SearchException;
 public interface IResourceCache {
 
 	SearchResult getSearchResult(Resource resource, String query) throws SearchException;
+	
+	void writeToCSV();
 }

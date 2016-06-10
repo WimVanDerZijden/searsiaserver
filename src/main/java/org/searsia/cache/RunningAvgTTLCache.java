@@ -1,7 +1,11 @@
 package org.searsia.cache;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.searsia.SearchResult;
 import org.searsia.engine.Resource;
@@ -150,6 +154,24 @@ public class RunningAvgTTLCache implements IResourceCache {
 		return ttlCache.get(resource);
 	}
 
+	@Override
+	public void writeToCSV()
+	{
+		File dir = new File("statistics");
+		dir.mkdirs();
+		try {
+			for (Entry<Resource, TTL> entry : ttlCache.entrySet())
+			{
+				PrintWriter pw = new PrintWriter(new File("statistics/" + entry.getKey().getId() + ".csv"));
+				pw.print(entry.getValue().toString());
+				pw.close();
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private class TTL {
 		private long ttl;
 		private long sum;
@@ -182,8 +204,8 @@ public class RunningAvgTTLCache implements IResourceCache {
 			sum += cachedResult.getEstimatedTTL();
 			count++;
 			ttl = sum / count;
-			System.out.println("New estimated TTL=" + ttl);
-			System.out.println(this.toString());
+			//System.out.println("New estimated TTL=" + ttl);
+			//System.out.println(this.toString());
 		}
 
 		public long getTTL()
